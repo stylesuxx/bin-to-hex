@@ -21,8 +21,10 @@
   "scripts": {
     "lint": "eslint ./src ./test",
     "test": "NODE_OPTIONS=--experimental-vm-modules npx jest",
-    "build": "esbuild ./src/index.js --format=esm --bundle --outfile=./dist/index.js --platform=node --minify",
-    "pre-publish": "yarn lint && yarn test && rm -rf lib && yarn build"
+    "build": "rm -rf dist && yarn run build:common && yarn run build:types",
+    "pre-publish": "yarn lint && yarn test && rm -rf lib && yarn build",
+    "build:common": "esbuild ./src/index.js --format=esm --bundle --outfile=./dist/index.js --platform=node --minify",
+    "build:types": "tsc --declaration --emitDeclarationOnly"
   },
   "engines": {
     "node": ">=v16.16.0"
