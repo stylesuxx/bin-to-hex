@@ -1,26 +1,30 @@
 class BinToHex {
+  private addressLength: number;
+
+  private maxBytes: number;
+
   constructor() {
     this.addressLength = 4;
     this.maxBytes = 16;
   }
 
-  setAddressLength(length) {
+  setAddressLength(length: number) {
     this.addressLength = length;
   }
 
-  getAddressLength() {
+  getAddressLength() : number {
     return this.addressLength;
   }
 
-  setMaxBytes(maxBytes) {
+  setMaxBytes(maxBytes: number) {
     this.maxBytes = maxBytes;
   }
 
-  getMaxBytes() {
+  getMaxBytes() : number {
     return this.maxBytes;
   }
 
-  getChecksum(address, type, data) {
+  getChecksum(address: number, type: number, data: Uint8Array) : string {
     const byteCount = data.length;
 
     let dataSum = 0;
@@ -44,7 +48,7 @@ class BinToHex {
     return twoComplement.toString(16).padStart(2, '0');
   }
 
-  getLine(address, type, data) {
+  getLine(address: number, type: number, data: Uint8Array) : string{
     const paddedAddressHex = address.toString(16).padStart(this.addressLength, '0');
     const typeHex = type.toString(16).padStart(2, '0');
     const byteCountHex = data.length.toString(16).padStart(2, '0');
@@ -60,15 +64,13 @@ class BinToHex {
     return line;
   }
 
-  convert(bin) {
+  convert(bin: Uint8Array) {
     const hex = '';
     let currentAddress = 0;
     const binLength = bin.length;
     const byteArrays = [];
 
     while (currentAddress < binLength) {
-
-      const currentLength = 0;
       const currentByteArray = [];
       const startAddress = currentAddress;
       while (currentAddress < binLength && currentByteArray.length < this.maxBytes) {

@@ -13,14 +13,16 @@ describe('BinToHex.js', () => {
       describe('without data', () => {
         test('starting at 0x0000', () => {
           const converter = new BinToHex();
-          const checksum = converter.getChecksum(0x0000, 0, []);
+          const data = new Uint8Array([]);
+          const checksum = converter.getChecksum(0x0000, 0, data);
 
           expect(checksum).toEqual('00');
         });
 
         test('starting at 0x00E2', () => {
           const converter = new BinToHex();
-          const checksum = converter.getChecksum(0x00E2, 0, []);
+          const data = new Uint8Array([]);
+          const checksum = converter.getChecksum(0x00E2, 0, data);
 
           expect(checksum).toEqual('1e');
         });
@@ -29,14 +31,16 @@ describe('BinToHex.js', () => {
       describe('with data', () => {
         test('starting at 0x1AF0', () => {
           const converter = new BinToHex();
-          const checksum = converter.getChecksum(0x1AF0, 0x00, [0xFF]);
+          const data = new Uint8Array([0xFF]);
+          const checksum = converter.getChecksum(0x1AF0, 0x00, data);
 
           expect(checksum).toEqual('f6');
         });
 
         test('starting at 0x1220', () => {
           const converter = new BinToHex();
-          const checksum = converter.getChecksum(0x1220, 0x00, [0x0F, 0xDB]);
+          const data = new Uint8Array([0x0F, 0xDB]);
+          const checksum = converter.getChecksum(0x1220, 0x00, data);
 
           expect(checksum).toEqual('e2');
         });
@@ -46,7 +50,8 @@ describe('BinToHex.js', () => {
     describe('type 0x01', () => {
       test('without data', () => {
         const converter = new BinToHex();
-        const checksum = converter.getChecksum(0x00, 0x01, []);
+        const data = new Uint8Array([]);
+        const checksum = converter.getChecksum(0x00, 0x01, data);
 
         expect(checksum).toEqual('ff');
       });
