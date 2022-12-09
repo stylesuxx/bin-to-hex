@@ -7,46 +7,46 @@ class BinToHex {
 
   private empty: number;
 
-  constructor(addressBytes: number = 2, maxBytes: number = 16, offset: number = 0, empty: number = null) {
+  constructor(addressBytes = 2, maxBytes = 16, offset = 0, empty: number = null) {
     this.addressBytes = addressBytes;
     this.maxBytes = maxBytes;
     this.offset = offset;
     this.empty = empty;
   }
 
-  setAddressBytes(length: number) {
+  public setAddressBytes(length: number) {
     this.addressBytes = length;
   }
 
-  getAddressBytes() : number {
+  public getAddressBytes() : number {
     return this.addressBytes;
   }
 
-  setMaxBytes(maxBytes: number) {
+  public setMaxBytes(maxBytes: number) {
     this.maxBytes = maxBytes;
   }
 
-  getMaxBytes() : number {
+  public getMaxBytes() : number {
     return this.maxBytes;
   }
 
-  setOffset(offset: number) {
+  public setOffset(offset: number) {
     this.offset = offset;
   }
 
-  getOffset() : number {
+  public getOffset() : number {
     return this.offset;
   }
 
-  setEmpty(empty: number) {
+  public setEmpty(empty: number) {
     this.empty = empty;
   }
 
-  getEmpty() : number {
+  public getEmpty() : number {
     return this.empty;
   }
 
-  getChecksum(address: number, type: number, data: Uint8Array) : string {
+  private getChecksum(address: number, type: number, data: Uint8Array) : string {
     const byteCount = data.length;
 
     let dataSum = 0;
@@ -71,7 +71,7 @@ class BinToHex {
   }
 
   // Split into segments by empty delimiter
-  getSegments(address: number, data: Uint8Array) {
+  private getSegments(address: number, data: Uint8Array) {
     let startOffset = 0;
     let endOffset = data.length;
 
@@ -92,7 +92,7 @@ class BinToHex {
     }
     const dataBytes = data.slice(startOffset, endOffset);
 
-    let segments = [];
+    const segments = [];
     let start = 0;
     let end = 0;
     while (end < dataBytes.length) {
@@ -117,7 +117,7 @@ class BinToHex {
     return segments;
   }
 
-  getLine(address: number, type: number, data: Uint8Array) : string{
+  private getLine(address: number, type: number, data: Uint8Array) : string{
     const typeHex = type.toString(16).padStart(2, '0');
     let segments = [{
       address: address,
@@ -157,7 +157,7 @@ class BinToHex {
     return null;
   }
 
-  convert(bin: Uint8Array) : string {
+  public convert(bin: Uint8Array) : string {
     const binLength = bin.length;
     const hex = [];
     const byteArrays = [];
