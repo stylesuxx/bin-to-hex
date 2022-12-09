@@ -70,58 +70,100 @@ class BinToHex {
     return twoComplement.toString(16).padStart(2, '0');
   }
 
-  getLine(address: number, type: number, data: Uint8Array) : string{
-    let currentAddress = address;
-    const typeHex = type.toString(16).padStart(2, '0');
-    const checksumHex = this.getChecksum(address, type, data);
-
+  // Split into segments by empty delimiter
+  getSegments(address: number, data: Uint8Array) {
     let startOffset = 0;
     let endOffset = data.length;
-    if(this.empty !== null) {
-      // Remove empty bytes from beginning of data
-      for (startOffset; startOffset < data.length; startOffset += 1) {
-        const byte = data[startOffset];
-        if(byte !== this.empty) {
-          break;
-        }
-      }
-      currentAddress += startOffset;
 
-      // Remove empty bytes from end of data
-      for(endOffset; endOffset > 0; endOffset -= 1) {
-        const byte = data[endOffset - 1];
-        if(byte !== this.empty) {
-          break;
-        }
+    // Remove empty bytes from beginning of data
+    for (startOffset; startOffset < data.length; startOffset += 1) {
+      const byte = data[startOffset];
+      if(byte !== this.empty) {
+        break;
       }
     }
-    console.log(this.empty, data, startOffset, endOffset);
+
+    // Remove empty bytes from end of data
+    for(endOffset; endOffset > 0; endOffset -= 1) {
+      const byte = data[endOffset - 1];
+      if(byte !== this.empty) {
+        break;
+      }
+    }
     const dataBytes = data.slice(startOffset, endOffset);
 
-    // No line if empty data record
-    if(dataBytes.length <= 0 && type === 0x00) {
-      return null;
+    let segments = [];
+    let start = 0;
+    let end = 0;
+    while (end < dataBytes.length) {
+      if(dataBytes[end] === this.empty) {
+        segments.push({
+          address: address + startOffset + start,
+          data: dataBytes.slice(start, end),
+        });
+
+        start = end + 1;
+      }
+
+      end += 1;
     }
 
-    let dataHex = '';
-    for (let i = 0; i < dataBytes.length; i += 1) {
-      const byte = dataBytes[i];
-      dataHex += byte.toString(16).padStart(2, '0');
+    // Push the last segment
+    segments.push({
+      address: address + startOffset + start,
+      data: dataBytes.slice(start, end),
+    });
+
+    return segments;
+  }
+
+  getLine(address: number, type: number, data: Uint8Array) : string{
+    const typeHex = type.toString(16).padStart(2, '0');
+    let segments = [{
+      address: address,
+      data: data,
+    }];
+
+    if(this.empty !== null && data.length > 0) {
+      segments = this.getSegments(address, data);
     }
 
-    const byteCountHex = dataBytes.length.toString(16).padStart(2, '0');
-    const paddedAddressHex = currentAddress.toString(16).padStart(this.addressBytes * 2, '0');
-    const line = `:${byteCountHex}${paddedAddressHex}${typeHex}${dataHex}${checksumHex}`;
+    const lines = [];
+    for(let j = 0; j < segments.length; j += 1) {
+      const segment = segments[j];
+      const { address, data} = segment;
 
-    return line;
+      // No line if empty data record
+      if(data.length <= 0 && type === 0x00) {
+        continue;
+      }
+
+      let dataHex = '';
+      for (let i = 0; i < data.length; i += 1) {
+        const byte = data[i];
+        dataHex += byte.toString(16).padStart(2, '0');
+      }
+
+      const byteCountHex = data.length.toString(16).padStart(2, '0');
+      const paddedAddressHex = address.toString(16).padStart(this.addressBytes * 2, '0');
+      const checksumHex = this.getChecksum(address, type, data);
+      lines.push(`:${byteCountHex}${paddedAddressHex}${typeHex}${dataHex}${checksumHex}`);
+    }
+
+    if(lines.length > 0) {
+      return lines.join("\n");
+    }
+
+    return null;
   }
 
   convert(bin: Uint8Array) : string {
-    const hex = [];
-    let currentAddress = 0;
     const binLength = bin.length;
+    const hex = [];
     const byteArrays = [];
 
+    // Split data into chunks
+    let currentAddress = 0;
     while (currentAddress < binLength) {
       const currentByteArray = [];
       const startAddress = currentAddress;
@@ -139,10 +181,13 @@ class BinToHex {
       });
     }
 
+    // Process chunks of data
     for(let i = 0; i < byteArrays.length; i += 1) {
-      const data = byteArrays[i];
-      hex.push(this.getLine(data.address, data.type, data.data));
+      const {address, type, data} = byteArrays[i];
+      hex.push(this.getLine(address, type, data));
     }
+
+    // Append End of file record
     hex.push(this.getLine(0x00, 0x01, new Uint8Array([])));
 
     return hex.join("\n");

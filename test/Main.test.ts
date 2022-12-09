@@ -158,9 +158,9 @@ describe('BinToHex.js', () => {
         });
 
         test('1 empty byte, 1 data', () => {
-          // :01 0001 00 00 ff
+          // :01 0001 00 00 fe
           const data = new Uint8Array([0xFF, 0x00]);
-          const result = ':0100010000ff';
+          const result = ':0100010000fe';
 
           const converter = new BinToHex();
           converter.setEmpty(0xFF);
@@ -171,9 +171,9 @@ describe('BinToHex.js', () => {
         });
 
         test('2 empty byte, 2 data', () => {
-          // :02 0002 00 0001 fd
+          // :02 0002 00 0001 fb
           const data = new Uint8Array([0xFF, 0xFF, 0x00, 0x01]);
-          const result = ':020002000001fd';
+          const result = ':020002000001fb';
 
           const converter = new BinToHex();
           converter.setEmpty(0xFF);
@@ -238,9 +238,9 @@ describe('BinToHex.js', () => {
 
       describe('in the front and end', () => {
         test('1 empty byte, 1 data', () => {
-          // :01 0001 00 00 ff
+          // :01 0001 00 00 fe
           const data = new Uint8Array([0xFF, 0x00, 0xFF]);
-          const result = ':0100010000ff';
+          const result = ':0100010000fe';
 
           const converter = new BinToHex();
           converter.setEmpty(0xFF);
@@ -251,9 +251,9 @@ describe('BinToHex.js', () => {
         });
 
         test('2 empty byte, 2 data', () => {
-          // :02 0002 00 0001 fd
+          // :02 0002 00 0001 fb
           const data = new Uint8Array([0xFF, 0xFF, 0x00, 0x01, 0xFF, 0xFF]);
-          const result = ':020002000001fd';
+          const result = ':020002000001fb';
 
           const converter = new BinToHex();
           converter.setEmpty(0xFF);
@@ -284,7 +284,7 @@ describe('BinToHex.js', () => {
         ]);
         const result = [
           ':04000000deadbeefc4',
-          ':00000001ff'
+          ':00000001ff',
         ].join("\n");
 
         const converter = new BinToHex();
@@ -298,8 +298,26 @@ describe('BinToHex.js', () => {
           0xFF, 0xFF, 0xDE, 0xAD, 0xBE, 0xEF, 0xFF, 0xFF
         ]);
         const result = [
-          ':04000200deadbeefc4',
-          ':00000001ff'
+          ':04000200deadbeefc2',
+          ':00000001ff',
+        ].join("\n");
+
+        const converter = new BinToHex();
+        converter.setEmpty(0xFF);
+        const line = converter.convert(data);
+
+        expect(line).toEqual(result);
+      });
+
+      test('remove 1 empty from inbetween', () => {
+        const data = new Uint8Array([
+          0xDE, 0xAD, 0x0FF, 0xBE, 0xEF, 0xFF, 0xBA, 0xBE,
+        ]);
+        const result = [
+          ':02000000dead73',
+          ':02000300beef4e',
+          ':02000600babe80',
+          ':00000001ff',
         ].join("\n");
 
         const converter = new BinToHex();
