@@ -2,10 +2,9 @@
   "name": "bin-to-hex",
   "author": "Chris L. <stylesuxx@gmail.com>",
   "description": "Convert BIN data to HEX string",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "main": "./dist/index.js",
   "license": "GPL-3.0-or-later",
-  "type": "module",
   "devDependencies": {
     "@types/jest": "^29.2.4",
     "@typescript-eslint/eslint-plugin": "^5.46.0",

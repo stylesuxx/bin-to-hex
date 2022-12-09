@@ -6,7 +6,7 @@ Converts a bin array to an [(Intel) HEX](https://en.wikipedia.org/wiki/Intel_HEX
 
 Can be used in both nodeJs and Browser context, you only need to supply the binary data in form of a Uint8Array:
 
-```
+```JavaScript
 const data = new Uint8Array([0xDE, 0xAD, 0xBE, 0xEF]);
 const converter = new BinToHex();
 const hex = converter.convert(data);
@@ -14,7 +14,7 @@ const hex = converter.convert(data);
 
 Alternatively you can pass configuration to the consturctur, the following values are assumed to be the defaults if you do not instantiate with parameters:
 
-```
+```JavaScript
 const addressBytes = 2;
 const maxBytes = 16;
 offset = 0;
@@ -23,7 +23,7 @@ const converter = new BinToHex(addressBytes, maxBytes, offset, empty);
 ```
 
 Those parameters additionally have setters and getters:
-```
+```JavaScript
 converter.setAddressBytes(4);
 converter.getAddressBytes();
 ```
@@ -39,7 +39,9 @@ You can provide the binary datea to the `convert` methods in different ways, for
 
 Each line in a HEX file represents a chunk of data at a specific address:
 
-> :{RCLEN}{ADDRESS}{RECTYPE}{DATA}{CHECKSUM}
+```
+:{RCLEN}{ADDRESS}{RECTYPE}{DATA}{CHECKSUM}
+```
 
 * **:**: Startcode
 * **RCLEN**: Length of {DATA} in bytes
