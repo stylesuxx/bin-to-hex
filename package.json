@@ -1,7 +1,7 @@
 {
-  "name": "ecma-library-template",
+  "name": "bin-to-hex",
   "author": "Chris L. <stylesuxx@gmail.com>",
-  "description": "A minimal template for nodeJS libraries including linting and tests",
+  "description": "Convert BIN data to HEX string",
   "version": "0.1.0",
   "main": "./dist/index.js",
   "license": "GPL-3.0-or-later",
