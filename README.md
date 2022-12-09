@@ -15,20 +15,18 @@ const hex = converter.convert(data);
 Alternatively you can pass configuration to the consturctur, the following values are assumed to be the defaults if you do not instantiate with parameters:
 
 ```JavaScript
-const addressBytes = 2;
-const maxBytes = 16;
-offset = 0;
-empty = null;
-const converter = new BinToHex(addressBytes, maxBytes, offset, empty);
+const maxBytes = 10;
+const offset = 0;
+const empty = null;
+const converter = new BinToHex(maxBytes, offset, empty);
 ```
 
 Those parameters additionally have setters and getters:
 ```JavaScript
-converter.setAddressBytes(4);
-converter.getAddressBytes();
+converter.setMaxBytes(4);
+converter.getMaxBytes();
 ```
 
-* **addressBytes**: The length of the address Bytes - 2 means that `0xFFFF`. Addresses are always padded to the maximal length. If set to 2, address `0x00` will be padded to `0x0000`.
 * **maxBytes**: The maximum amount of data bytes per record
 * **offset**: Offset for the address in case the data should not start at `0x00`
 * **empty**: If empty value is set, bytes with this value will be removed from the resulting HEX. If the flash hast the value `0xFF` after bein erased, the hex file does not need to include those segments of memory, reducing the overall file size of the HEX file.
@@ -45,7 +43,7 @@ Each line in a HEX file represents a chunk of data at a specific address:
 
 * **:**: Startcode
 * **RCLEN**: Length of {DATA} in bytes
-* **ADDRESS**: The address of the data
+* **ADDRESS**: The address of the data (16 Bit)
 * **RECTYPE**: Record type - this can either be 00 (Data) or 01 (End of file)
 * **DATA**: {RCLEN} amount of data bytes
 * **CHECKSUM**: Checksum over the whole record ({ADDRESS}, {RECTYPE} and {DATA})
@@ -107,8 +105,11 @@ Then you can import and use the library:
 ```javascript
 import BinToHex from 'bin-to-hex';
 
-const main = new Main();
-main.echo('Testing');
+const data = new Uint8Array([0xDE, 0xAD, 0xBE, 0xEF]);
+const converter = new BinToHex();
+const hex = converter.convert(data);
+
+console.log(hex);
 ```
 
 ### Contributing
