@@ -1,25 +1,14 @@
 class BinToHex {
-  private addressBytes: number;
-
   private maxBytes: number;
 
   private offset: number;
 
   private empty: number;
 
-  constructor(addressBytes = 2, maxBytes = 16, offset = 0, empty: number = null) {
-    this.addressBytes = addressBytes;
+  constructor(maxBytes = 10, offset = 0, empty: number = null) {
     this.maxBytes = maxBytes;
     this.offset = offset;
     this.empty = empty;
-  }
-
-  public setAddressBytes(length: number) {
-    this.addressBytes = length;
-  }
-
-  public getAddressBytes() : number {
-    return this.addressBytes;
   }
 
   public setMaxBytes(maxBytes: number) {
@@ -145,7 +134,7 @@ class BinToHex {
       }
 
       const byteCountHex = data.length.toString(16).padStart(2, '0');
-      const paddedAddressHex = address.toString(16).padStart(this.addressBytes * 2, '0');
+      const paddedAddressHex = address.toString(16).padStart(4, '0');
       const checksumHex = this.getChecksum(address, type, data);
       lines.push(`:${byteCountHex}${paddedAddressHex}${typeHex}${dataHex}${checksumHex}`);
     }
@@ -184,7 +173,7 @@ class BinToHex {
     // Process chunks of data
     for(let i = 0; i < byteArrays.length; i += 1) {
       const {address, type, data} = byteArrays[i];
-      hex.push(this.getLine(address, type, data));
+      hex.push(this.getLine(address + this.offset, type, data));
     }
 
     // Append End of file record

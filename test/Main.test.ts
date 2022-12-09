@@ -68,6 +68,57 @@ describe('BinToHex.js', () => {
 
         expect(line).toEqual(result);
       });
+    });
+
+    describe('with offset', () => {
+      test('4 bytes', () => {
+        const data = new Uint8Array([
+          0xDE, 0xAD, 0xBE, 0xEF,
+        ]);
+        const result = [
+          ':0400ff00deadbeefc5',
+          ':00000001ff',
+        ].join("\n");
+
+        const converter = new BinToHex(16, 0xFF);
+        const line = converter.convert(data);
+
+        expect(line).toEqual(result);
+      });
+
+      test('remove empty from beginning and end', () => {
+        const data = new Uint8Array([
+          0xFF, 0xFF, 0xDE, 0xAD, 0xBE, 0xEF, 0xFF, 0xFF
+        ]);
+        const result = [
+          ':04010100deadbeefc2',
+          ':00000001ff',
+        ].join("\n");
+
+        const converter = new BinToHex(16, 0xFF);
+        converter.setEmpty(0xFF);
+        const line = converter.convert(data);
+
+        expect(line).toEqual(result);
+      });
+
+      test('remove 1 empty from inbetween', () => {
+        const data = new Uint8Array([
+          0xDE, 0xAD, 0x0FF, 0xBE, 0xEF, 0xFF, 0xBA, 0xBE,
+        ]);
+        const result = [
+          ':0200ff00dead74',
+          ':02010200beef4e',
+          ':02010500babe80',
+          ':00000001ff',
+        ].join("\n");
+
+        const converter = new BinToHex(16, 0xFF);
+        converter.setEmpty(0xFF);
+        const line = converter.convert(data);
+
+        expect(line).toEqual(result);
+      });
 
     });
   });
