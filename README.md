@@ -7,14 +7,20 @@ Converts a bin array to an [(Intel) HEX](https://en.wikipedia.org/wiki/Intel_HEX
 Can be used in both nodeJs and Browser context, you only need to supply the binary data in form of a Uint8Array:
 
 ```JavaScript
+import BinToHex from "bin-to-hex";
+
 const data = new Uint8Array([0xDE, 0xAD, 0xBE, 0xEF]);
 const converter = new BinToHex();
 const hex = converter.convert(data);
+
+console.log(hex)
 ```
 
 Alternatively you can pass configuration to the consturctur, the following values are assumed to be the defaults if you do not instantiate with parameters:
 
 ```JavaScript
+import BinToHex from "bin-to-hex";
+
 const maxBytes = 10;
 const offset = 0;
 const empty = null;
@@ -31,7 +37,7 @@ converter.getMaxBytes();
 * **offset**: Offset for the address in case the data should not start at `0x00`
 * **empty**: If empty value is set, bytes with this value will be removed from the resulting HEX. If the flash hast the value `0xFF` after bein erased, the hex file does not need to include those segments of memory, reducing the overall file size of the HEX file.
 
-You can provide the binary datea to the `convert` methods in different ways, for example by reading a local file or converting a [Blob](https://developer.mozilla.org/en-US/docs/Web/API/Blob/arrayBuffer) to a Buffer.
+You can provide the binary data to the `convert` methods in different ways, for example by reading a local file or converting a [Blob](https://developer.mozilla.org/en-US/docs/Web/API/Blob/arrayBuffer) to a Buffer.
 
 ## HEX format
 
@@ -99,7 +105,7 @@ In order to use the library locally it needs to be linked like so:
 
 1. In the root directory of this library run: ```yarn link```
 2. Make sure a build exists ```yarn build```
-3. In the root directory where you want to use this library run ```yarn link "node-library-template"``` - replace *node-library-template* with the actual package name as defined in *package.json*
+3. In the root directory where you want to use this library run ```yarn link "bin-to-hex"```
 
 Then you can import and use the library:
 ```javascript

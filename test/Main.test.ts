@@ -1,3 +1,5 @@
+import fs from 'fs';
+import util from 'util';
 import BinToHex from '../src/BinToHex';
 
 describe('BinToHex.js', () => {
@@ -11,12 +13,12 @@ describe('BinToHex.js', () => {
   describe('convert', () => {
     test('no data', () => {
       const data = new Uint8Array([]);
-      const result = ':00000001ff';
+      const result = ':00000001FF';
 
       const converter = new BinToHex();
-      const line = converter.convert(data);
+      const hexString = converter.convert(data);
 
-      expect(line).toEqual(result);
+      expect(hexString).toEqual(result);
     });
 
     describe('with data', () => {
@@ -25,48 +27,84 @@ describe('BinToHex.js', () => {
           0xDE, 0xAD, 0xBE, 0xEF,
         ]);
         const result = [
-          ':04000000deadbeefc4',
-          ':00000001ff',
+          ':04000000DEADBEEFC4',
+          ':00000001FF',
         ].join("\n");
 
         const converter = new BinToHex();
-        const line = converter.convert(data);
+        const hexString = converter.convert(data);
 
-        expect(line).toEqual(result);
+        expect(hexString).toEqual(result);
       });
 
-      test('remove empty from beginning and end', () => {
+      test('16 bytes', () => {
         const data = new Uint8Array([
-          0xFF, 0xFF, 0xDE, 0xAD, 0xBE, 0xEF, 0xFF, 0xFF
+          0xDE, 0xAD, 0xBE, 0xEF, 0xDE, 0xAD, 0xBE, 0xEF, 0xDE, 0xAD,
+          0xBE, 0xEF,
         ]);
         const result = [
-          ':04000200deadbeefc2',
-          ':00000001ff',
+          ':0A000000DEADBEEFDEADBEEFDEADFB',
+          ':02000A00BEEF47',
+          ':00000001FF',
         ].join("\n");
 
         const converter = new BinToHex();
-        converter.setEmpty(0xFF);
-        const line = converter.convert(data);
+        const hexString = converter.convert(data);
 
-        expect(line).toEqual(result);
+        expect(hexString).toEqual(result);
       });
 
-      test('remove 1 empty from inbetween', () => {
-        const data = new Uint8Array([
-          0xDE, 0xAD, 0x0FF, 0xBE, 0xEF, 0xFF, 0xBA, 0xBE,
-        ]);
-        const result = [
-          ':02000000dead73',
-          ':02000300beef4e',
-          ':02000600babe80',
-          ':00000001ff',
-        ].join("\n");
+      describe('remove empty', () => {
+        test('from beginning and end', () => {
+          const data = new Uint8Array([
+            0xFF, 0xFF, 0xDE, 0xAD, 0xBE, 0xEF, 0xFF, 0xFF
+          ]);
+          const result = [
+            ':04000200DEADBEEFC2',
+            ':00000001FF',
+          ].join("\n");
 
-        const converter = new BinToHex();
-        converter.setEmpty(0xFF);
-        const line = converter.convert(data);
+          const converter = new BinToHex();
+          converter.setEmpty(0xFF);
+          const hexString = converter.convert(data);
 
-        expect(line).toEqual(result);
+          expect(hexString).toEqual(result);
+        });
+
+        test('leave 1 empty inbetween', () => {
+          const data = new Uint8Array([
+            0xDE, 0xAD, 0x0FF, 0xBE, 0xEF, 0xFF, 0xBA, 0xBE,
+          ]);
+          const result = [
+            ':08000000DEADFFBEEFFFBABE4A',
+            ':00000001FF',
+          ].join("\n");
+
+          const converter = new BinToHex();
+          converter.setEmpty(0xFF);
+          const hexString = converter.convert(data);
+
+          expect(hexString).toEqual(result);
+        });
+
+        test('remove 5 empty inbetween', () => {
+          const data = new Uint8Array([
+            0xDE, 0xAD, 0x0FF, 0x0FF, 0x0FF, 0x0FF, 0x0FF, 0xBE, 0xEF, 0xBA,
+            0xBE,
+          ]);
+          const result = [
+            ':02000000DEAD73',
+            ':03000700BEEFBA8F',
+            ':01000A00BE37',
+            ':00000001FF',
+          ].join("\n");
+
+          const converter = new BinToHex();
+          converter.setEmpty(0xFF);
+          const hexString = converter.convert(data);
+
+          expect(hexString).toEqual(result);
+        });
       });
     });
 
@@ -76,50 +114,81 @@ describe('BinToHex.js', () => {
           0xDE, 0xAD, 0xBE, 0xEF,
         ]);
         const result = [
-          ':0400ff00deadbeefc5',
-          ':00000001ff',
+          ':0400FF00DEADBEEFC5',
+          ':00000001FF',
         ].join("\n");
 
         const converter = new BinToHex(16, 0xFF);
-        const line = converter.convert(data);
+        const hexString = converter.convert(data);
 
-        expect(line).toEqual(result);
+        expect(hexString).toEqual(result);
       });
 
-      test('remove empty from beginning and end', () => {
-        const data = new Uint8Array([
-          0xFF, 0xFF, 0xDE, 0xAD, 0xBE, 0xEF, 0xFF, 0xFF
-        ]);
-        const result = [
-          ':04010100deadbeefc2',
-          ':00000001ff',
-        ].join("\n");
+      describe('remove empty', () => {
+        test('remove empty from beginning and end', () => {
+          const data = new Uint8Array([
+            0xFF, 0xFF, 0xDE, 0xAD, 0xBE, 0xEF, 0xFF, 0xFF
+          ]);
+          const result = [
+            ':04010100DEADBEEFC2',
+            ':00000001FF',
+          ].join("\n");
 
-        const converter = new BinToHex(16, 0xFF);
-        converter.setEmpty(0xFF);
-        const line = converter.convert(data);
+          const converter = new BinToHex(16, 0xFF);
+          converter.setEmpty(0xFF);
+          const hexString = converter.convert(data);
 
-        expect(line).toEqual(result);
+          expect(hexString).toEqual(result);
+        });
+
+        test('remove 1 empty inbetween', () => {
+          const data = new Uint8Array([
+            0xDE, 0xAD, 0x0FF, 0xBE, 0xEF, 0xFF, 0xBA, 0xBE,
+          ]);
+          const result = [
+            ':0800FF00DEADFFBEEFFFBABE4B',
+            ':00000001FF',
+          ].join("\n");
+
+          const converter = new BinToHex(16, 0xFF);
+          converter.setEmpty(0xFF);
+          const hexString = converter.convert(data);
+
+          expect(hexString).toEqual(result);
+        });
+
+        test('remove 5 empty inbetween', () => {
+          const data = new Uint8Array([
+            0xDE, 0xAD, 0x0FF, 0x0FF, 0x0FF, 0x0FF, 0x0FF, 0xBE, 0xEF, 0xBA,
+            0xBE,
+          ]);
+          const result = [
+            ':0200FF00DEAD74',
+            ':04010600BEEFBABED0',
+            ':00000001FF',
+          ].join("\n");
+
+          const converter = new BinToHex(16, 0xFF);
+          converter.setEmpty(0xFF);
+          const hexString = converter.convert(data);
+
+          expect(hexString).toEqual(result);
+        });
       });
+    });
 
-      test('remove 1 empty from inbetween', () => {
-        const data = new Uint8Array([
-          0xDE, 0xAD, 0x0FF, 0xBE, 0xEF, 0xFF, 0xBA, 0xBE,
-        ]);
-        const result = [
-          ':0200ff00dead74',
-          ':02010200beef4e',
-          ':02010500babe80',
-          ':00000001ff',
-        ].join("\n");
+    describe('from file', () => {
+      test('convert removing empty', () => {
+        const inputFileContent = fs.readFileSync('./test/files/input.BIN');
+        const data = new Uint8Array(inputFileContent);
 
-        const converter = new BinToHex(16, 0xFF);
-        converter.setEmpty(0xFF);
-        const line = converter.convert(data);
+        const result = fs.readFileSync('./test/files/output.HEX', 'utf8');
 
-        expect(line).toEqual(result);
+        const converter = new BinToHex(16, 0x00, 0xFF);
+        const hexString = converter.convert(data);
+
+        expect(hexString).toEqual(result);
       });
-
     });
   });
 });
