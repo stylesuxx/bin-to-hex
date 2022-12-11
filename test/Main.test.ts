@@ -1,5 +1,4 @@
 import fs from 'fs';
-import util from 'util';
 import BinToHex from '../src/BinToHex';
 
 describe('BinToHex.js', () => {
