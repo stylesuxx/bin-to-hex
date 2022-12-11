@@ -81,17 +81,29 @@ class BinToHex {
     }
     const dataBytes = data.slice(startOffset, endOffset);
 
+    /**
+     * Removing empty bytes from inbetween only makes sense if the amount
+     * of empty bytes is greater than the amount of bytes needed for a new
+     * line.
+     */
     const segments = [];
     let start = 0;
     let end = 0;
+    let emptyCount = 0;
     while (end < dataBytes.length) {
       if(dataBytes[end] === this.empty) {
-        segments.push({
-          address: address + startOffset + start,
-          data: dataBytes.slice(start, end),
-        });
+        emptyCount += 1;
+      } else {
+        if(emptyCount > 4) {
+          segments.push({
+            address: address + startOffset + start,
+            data: dataBytes.slice(start, end - emptyCount),
+          });
 
-        start = end + 1;
+          start = end;
+        }
+
+        emptyCount = 0;
       }
 
       end += 1;
@@ -136,7 +148,8 @@ class BinToHex {
       const byteCountHex = data.length.toString(16).padStart(2, '0');
       const paddedAddressHex = address.toString(16).padStart(4, '0');
       const checksumHex = this.getChecksum(address, type, data);
-      lines.push(`:${byteCountHex}${paddedAddressHex}${typeHex}${dataHex}${checksumHex}`);
+      const line =`:${byteCountHex}${paddedAddressHex}${typeHex}${dataHex}${checksumHex}`;
+      lines.push(line.toUpperCase());
     }
 
     if(lines.length > 0) {
@@ -173,7 +186,11 @@ class BinToHex {
     // Process chunks of data
     for(let i = 0; i < byteArrays.length; i += 1) {
       const {address, type, data} = byteArrays[i];
-      hex.push(this.getLine(address + this.offset, type, data));
+      const line = this.getLine(address + this.offset, type, data);
+
+      if(line) {
+        hex.push(line);
+      }
     }
 
     // Append End of file record
